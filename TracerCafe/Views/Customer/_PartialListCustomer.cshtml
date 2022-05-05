@@ -1,0 +1,99 @@
+﻿@model List<TracerCafe.Data.DTO.CustomerDto>;
+@{
+    var page = ViewBag.Page;
+}
+@if (Model.Any())
+{
+
+    <div class="row">
+        <div class="col-sm-12 col-md-12">
+            <table id="myTable" class="display nowrap table table-hover table-striped table-bordered" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Title</th>
+                        <th>FirstName</th>
+                        <th>SurName</th>
+                        <th>Address1</th>
+                        <th>Address2</th>
+                        <th>Address3</th>
+                        <th>Address4</th>
+                        <th>PostCode</th>
+                        <th>Telephone</th>
+                        <th>Age</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int i = 0; i < Model.Count; i++)
+                    {
+
+                        var item = Model[i];
+                        var no = i + 1 + (page - 1) * 5;
+                    <tr>
+                        <td class="Id" hidden>@item.Id</td>
+                        <td>@no</td>
+                        <td class="Title">@item.Title</td>
+                        <td class="FirstName">@item.FirstName</td>
+                        <td class="Surname">@item.Surname</td>
+                        <td class="Address1">@item.Address1</td>
+                        <td class="Address2">@item.Address2</td>
+                        <td class="Address3">@item.Address3</td>
+                        <td class="Address4">@item.Address4</td>
+                        <td class="PostCode">@item.PostCode</td>
+                        <td class="Telephone">@item.Telephone</td>
+                        <td class="Age">@item.Age</td>
+                        <td class="modal-footer">
+                            <button id="editBtn" class="btn waves-effect waves-light btn-outline-success" type="button" data-toggle="modal" data-target="#modalCustomer"><i class="fa fa-edit"></i></button>
+                            <button id="deleteBtn" class="btn waves-effect waves-light btn-outline-danger" type="button" data-toggle="modal" data-target="#modalConfirm"><i class="fa fa-trash"></i></button>
+
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+
+            </table>
+        </div>
+
+    </div>
+    @await Html.PartialAsync("_PartialPaging", new { CallBackName = "getListCustomer", Page = ViewBag.Page, TotalPage = ViewBag.TotalPage, TotalRow = ViewBag.TotalRow })
+
+
+}
+
+<script>
+
+    $("#myTable").on('click', '#editBtn', function () {
+        $("#myModalLabel").text("Edit Customer");
+        var currentRow = $(this).closest("tr");
+        var Id = currentRow.find(".Id").text();
+        var Title = currentRow.find(".Title").text();
+        var FirstName = currentRow.find(".FirstName").text();
+        var Surname = currentRow.find(".Surname").text();
+        var Address1 = currentRow.find(".Address1").text();
+        var Address2 = currentRow.find(".Address2").text();
+        var Address3 = currentRow.find(".Address3").text();
+        var Address4 = currentRow.find(".Address4").text();
+        var PostCode = currentRow.find(".PostCode").text();
+        var Telephone = currentRow.find(".Telephone").text();
+        var Age = currentRow.find(".Age").text();
+        
+        $("#Id").val(Id);
+        $("#Title").val(Title);
+        $("#FirstName").val(FirstName);
+        $("#Surname").val(Surname);
+        $("#Address1").val(Address1);
+        $("#Address2").val(Address2);
+        $("#Address3").val(Address3);
+        $("#Address4").val(Address4);
+        $("#PostCode").val(PostCode);
+        $("#Telephone").val(Telephone);
+        $("#Age").val(Age);
+    });
+
+    $("#myTable").on('click', '#deleteBtn', function () {
+        var currentRow = $(this).closest("tr");
+        var Id = currentRow.find(".Id").text();
+        $("#IdCustomerDelete").val(Id);
+    });
+
+</script>

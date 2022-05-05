@@ -1,0 +1,165 @@
+﻿@{
+    ViewBag.Title = "Manage Customer";
+}
+
+<div class="table-responsive m-t-40">
+    <div id="config-table_wrapper" class="dataTables_wrapper container-fluid dt-bootstrap4 no-footer">
+
+        <div class="row" style="margin-bottom:20px;">
+            <div class="col-sm-12 col-md-6">
+                <div class="input-group ">
+                    <input type="text" class="form-control" placeholder="Search by: FirstName, SurName, PostCode, Phone" name="Keyword" id="Keyword">
+                    <div class="input-group-append ">
+                        <button onclick="getListCustomer(1)" id="SearchKeyword" type="button" class="btn waves-effect waves-light btn-primary" data-toggle="tooltip" title="">
+                            <span class="fas fa-search"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12 col-md-10"></div>
+            <div class="col-sm-12 col-md-2">
+                <button style="float:right" id="btnCreate" class="btn btn-success" data-toggle="modal" data-target="#modalCustomer">Create</button>
+            </div>
+
+        </div>
+        <br />
+        <div id="content">
+
+        </div>
+        @await Html.PartialAsync("_PartialModalCustomer")    
+        @await Html.PartialAsync("_PartialModalConfirm")
+    </div>
+</div>
+
+
+<script>
+ 
+
+    function getListCustomer(page) {
+
+        $.ajax({
+            url: "/Customer/SearchByFilter",
+            type: "POST",
+            data: {
+                KeyWord: $("#Keyword").val() ?? "",
+                Page: page
+            },
+            dataType: "html",
+            success: (function (result) {
+                $("#content").html(result);
+            })
+        })
+    }
+
+    $(document).ready(function () {
+      
+
+        $("#formCustomer").validate({
+            rule: {
+                "Telephone": {
+                    phoneUK: true
+                }
+            }
+        })
+
+        $('#Telephone').rules('add', {
+            phoneUK: true
+          
+        });
+
+        getListCustomer(1);
+
+        $("#btnCreate").click(function () {
+            $("#myModalLabel").text("Create New Customer");
+            $("#formCustomer input").val("");
+        })
+
+        $("#saveBtn").click(function () {
+         
+            if ($("#formCustomer").valid()) {
+                var data =
+                {
+                    Id: $("#Id").val(),
+                    Title: $("#Title").val(),
+                    FirstName: $("#FirstName").val(),
+                    Surname: $("#Surname").val(),
+                    Address1: $("#Address1").val(),
+                    Address2: $("#Address2").val(),
+                    Address3: $("#Address3").val(),
+                    Address4: $("#Address4").val(),
+                    Age: $("#Age").val(),
+                    PostCode: $("#PostCode").val(),
+                    Telephone: $("#Telephone").val()
+                }
+
+                if (data.Id) {
+                    $.ajax({
+                        type: "PUT",
+                        url: "/Customer/Update",
+                        data: data,
+                        success: function (data) {
+                            if (data.code == 0) {
+                                toastr.success("Update customer success!");
+                                $("#modalCustomer").modal("hide");
+                                getListCustomer(1);
+                            }
+                            else {
+                                toastr.error(data.message);
+                            }
+                        }
+
+                    });
+                }
+                else {
+                    $.ajax({
+                        type: "POST",
+                        url: "/Customer/Insert",
+                        data: data,
+                        success: function (data) {
+                            if (data.code == 0) {
+                                toastr.success("Create customer success!");
+                                $("#modalCustomer").modal("hide");
+                                getListCustomer(1);
+                            }
+                            else {
+                                toastr.error(data.message);
+                            }
+                        }
+
+                    });
+                }
+
+            }
+        })
+
+        $('#Keyword').keypress(function (event) {
+            var keycode = (event.keyCode ? event.keyCode : event.which);
+            if (keycode == '13') {
+                getListCustomer(1);
+            }
+        });
+
+        $("#btnConfirmDelete").click(function () {
+            $.ajax({
+                type: "DELETE",
+                url: "/Customer/Delete/" + $("#IdCustomerDelete").val(),
+                success: (function (data) {
+                    if (data.code == 0) {
+                        toastr.success("Delete customer success!");
+                        $("#modalConfirm").modal("hide");
+                    }
+                    else {
+                        toastr.error(data.message);
+                    }
+                    getListCustomer(1);
+                }),
+                error: function (response) {
+                    toastr.error("Delete customer failed!");
+                }
+            })
+        })
+    });
+
+</script>
