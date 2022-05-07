@@ -50,7 +50,7 @@ export const Update:ActionCreator<ThunkAction<Promise<void>, null, null, null>>=
 {
     
     return async (dispatch :Dispatch):Promise<void>=>{
-        
+        debugger
         var customerService = new CustomerService();
         const updateCustomer =await customerService.UpdateCustomer(customer);
         if (updateCustomer)
@@ -69,29 +69,31 @@ export const Delete:ActionCreator<ThunkAction<Promise<void>, null, null, null>>=
     return async (dispatch :Dispatch):Promise<void>=>{
         
         var customerService = new CustomerService();
-        const deleteCustomer =await customerService.DeleteCustomer(id);       
+        await customerService.DeleteCustomer(id);       
     }
 }
 
-export const UpdateSearchFilter:ActionCreator<ThunkAction<Promise<void>, null, null, null>>= (customer:ICustomer) =>
+export const UpdateSearchFilter:ActionCreator<ThunkAction<Promise<void>, null, null, null>>= (searchCustomerByFilter:ISearchCustomerByFilter) =>
 {
     
     return async (dispatch :Dispatch):Promise<void>=>{
         
         dispatch({
             type:CustomerActionTypes.UPDATE_SEARCH_FILTER,
+            searchFilter: searchCustomerByFilter,
         })       
     }
 }
 
-export const CreateCustomer:ActionCreator<ThunkAction<Promise<void>, null, null, null>>= (searchFilter:ISearchCustomerByFilter) =>
+export const CreateCustomer:ActionCreator<ThunkAction<Promise<void>, null, null, null>>= (customer:ICustomer) =>
 {
     
     return async (dispatch :Dispatch):Promise<void>=>{
-        
+        var customerService = new CustomerService();
+        await customerService.CreateCustomer(customer);
         dispatch({
-            type:CustomerActionTypes.CREATE_CUSTOMER,
-            searchFilter: searchFilter,
+            type:CustomerActionTypes.CREATE_CUSTOMER
+
         })       
     }
 }

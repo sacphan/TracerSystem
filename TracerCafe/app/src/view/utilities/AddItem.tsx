@@ -1,6 +1,7 @@
 import React from 'react';
 import 'antd/dist/antd.css';
-import { Modal, Form, Input } from 'antd';
+import { Modal, Form, Input, InputNumber } from 'antd';
+import { FormInstance } from 'antd/lib/form';
 
 export interface IFieldForm
 {
@@ -9,6 +10,7 @@ export interface IFieldForm
     rule:any
     hidden?:boolean 
     readonly?:boolean
+    type?:string
 }
 
 export interface IPropsAddItem {
@@ -18,6 +20,7 @@ export interface IPropsAddItem {
     handleCancel?:Function
     Modal?:any
     FieldForm:IFieldForm[]
+    refAddItem:React.RefObject<FormInstance>
 };
 
 export class AddItem extends React.Component<IPropsAddItem>
@@ -26,7 +29,7 @@ export class AddItem extends React.Component<IPropsAddItem>
         super(props);
         }
 
- 
+
 
   render(): JSX.Element{
 
@@ -38,7 +41,8 @@ export class AddItem extends React.Component<IPropsAddItem>
             rules={item.rule}
             hidden={item.hidden==true}                                      
           >
-            <Input  readOnly={item.readonly==true}/>
+            {/* {item.type=='number'? <InputNumber></InputNumber>} */}
+            <Input type={item.type}  readOnly={item.readonly==true}/>
           </Form.Item>)
     });
       return  (
@@ -48,7 +52,7 @@ export class AddItem extends React.Component<IPropsAddItem>
         okButtonProps={{form:'add-item', htmlType: 'submit'}}
         onCancel={()=>this.props.handleCancel()}>
           <Form
-            //ref={this.formRef}
+            ref={this.props.refAddItem}
             labelCol={{
               span: 5,
             }}

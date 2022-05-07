@@ -30,7 +30,6 @@ interface IState {
   isModalConfirmVisible:boolean
   idDelete:string
   ModalConfirmDelete:IPropsModalConfirm
-
 };
 
 
@@ -89,7 +88,6 @@ class CustomerTable extends React.Component<PropsTable, IState>
   };
 
   componentDidMount(): void {
-    debugger
     this.props.SearchByFilter(this.props.searchFilter);   
   }
   

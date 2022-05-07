@@ -22,7 +22,7 @@ export default class CustomerService extends BaseService {
     }
 
     public CreateCustomer(data:ICustomer):Promise<any>
-    {
+    {      
         return this.post(`${this.apiUrl}`,{...data});
     }
 }

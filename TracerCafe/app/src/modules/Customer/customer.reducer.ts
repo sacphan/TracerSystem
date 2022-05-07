@@ -49,7 +49,7 @@ export const CustomerReducer: Reducer<ICustomerState, CustomerActions> = (state 
             return {
                 ...state,
                 searchFilter: {...action.searchFilter}
-            }    
+            } 
         default:
             return state;
     }

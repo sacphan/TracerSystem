@@ -15,6 +15,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using TracerCafe.Data;
 using TracerCafe.Services.Customer;
+using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
 
 namespace APITracer
 {
@@ -36,7 +37,7 @@ namespace APITracer
 
             //Config Mapper
             services.AddAutoMapper(c => c.AddProfile<AutoMapperProfile>(), typeof(Startup));
-            services.AddControllers();
+            services.AddControllers().AddNewtonsoftJson();
 
             //Swagger
             services.AddSwaggerGen(c =>
