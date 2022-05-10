@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using TracerCafe.Data.DTO;
 using TracerCafe.Data.Entities;
+using TracerCafe.Data.Model;
 using TracerCafe.Data.Model.Customer;
 using TracerCafe.Services.Customer;
 
@@ -26,6 +27,7 @@ namespace APITracer.Controllers
         [HttpPost("SearchByFilter")]
         public async Task<IActionResult> SearchByFilter(SearchCustomerFilter searchcustomerfilter)
         {
+            var err = new ErrorObject(Error.SUCCESS);
             var totalRow = 0;
             var totalPage = 0;
 
@@ -37,23 +39,24 @@ namespace APITracer.Controllers
             }
             
             var data = _mapper.Map<List<CustomerDto>>(customers);
-            return Ok(new ResultSearchCustomer {Customers= data, Page= searchcustomerfilter.Page ,TotalCustomer= totalRow ,TotalPage = totalPage });
+            err.SetData(new ResultSearchCustomer { Customers = data, Page = searchcustomerfilter.Page, TotalCustomer = totalRow, TotalPage = totalPage });
+            return Ok(err);
         }
 
         [HttpPost]
         public async Task<IActionResult> CreateCustomer(Customer customer)
         {
             var result = await _customerservice.CreateCustomer(customer);
-            var data = _mapper.Map<CustomerDto>(result.Data);
-            return Ok(data);
+            result.SetData(_mapper.Map<CustomerDto>(result.Data));
+            return Ok(result);
         }
 
         [HttpPut]
         public async Task<IActionResult> UpdateCustomer(Customer customer)
         {
             var result = await _customerservice.UpdateCustomer(customer);
-            var data = _mapper.Map<CustomerDto>(result.Data);
-            return Ok(data);
+            result.SetData(_mapper.Map<CustomerDto>(result.Data));
+            return Ok(result);
         }
 
         [HttpDelete("{id}")]

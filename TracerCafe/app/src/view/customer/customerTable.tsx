@@ -6,12 +6,14 @@ import { FormInstance } from 'antd/lib/form';
 import { ThunkDispatch } from 'redux-thunk';
 import { IAppState } from '../../store/Store';
 import { AnyAction, bindActionCreators } from 'redux';
-import { WithTranslation, withTranslation } from 'react-i18next';
+import {  withTranslation } from 'react-i18next';
 import { connect } from 'react-redux';
 import {Update,Delete,SearchByFilter,UpdateSearchFilter} from '../../modules/Customer/customer.action'
-import { ExclamationCircleOutlined } from '@ant-design/icons';
 import {ModalConfirm,IPropsModalConfirm} from '../utilities/modalConfirm'
 import {ISearchCustomerByFilter} from '../../model/Customer/SearchCustomerByFilter'
+import { ErrorObject } from "../../constanst";
+import  {NotificationActionTypes} from '../../modules/Notification/notification.type'
+
 
 interface PropsTable {
   customerData: ICustomerData
@@ -20,6 +22,7 @@ interface PropsTable {
   SearchByFilter?:Function
   UpdateSearchFilter?:Function
   searchFilter: ISearchCustomerByFilter;
+  dispatchAction?:Function
 
 }
 
@@ -69,14 +72,19 @@ class CustomerTable extends React.Component<PropsTable, IState>
   showModalEdit= (record:ICustomer)=>{
     this.setState({ isModalVisible: true,TitleModal:"Edit Customer",Modal:record });
     setTimeout(() => this.formRef.current?.setFieldsValue({...record}), 0);
-    
-    //this.formRef.current?.setFieldsValue({...this.state.Modal});
   };
 
-  handleOk = (record:any) => {
+  handleOk = async (record:any) => {
     const value = record;
-    this.props.Update(value);
-    this.setState({ isModalVisible: false });
+    var result = await this.props.Update(value);
+    
+    this.props.dispatchAction({
+      type:result.code==ErrorObject.SUCCESS ? NotificationActionTypes.SUCCESS:NotificationActionTypes.ERROR,
+      message: result.message,
+      title: "Update Customer"
+    })
+    
+    this.setState({ isModalVisible: !(result.code==ErrorObject.SUCCESS) });
   };
 
   handleCancel = () => {
@@ -97,14 +105,31 @@ onPageChanged = async (page:number)=>{
 }
 
   handleDelete =async  () => {
-        await this.props.Delete(this.state.idDelete)
-        await this.props.SearchByFilter(this.props.searchFilter);
-        if (this.props.customerData.customers.length<=0 && this.props.searchFilter.Page>1)
+        var result =await this.props.Delete(this.state.idDelete)
+        if (result.code == ErrorObject.SUCCESS)
         {
-          await this.props.UpdateSearchFilter({...this.props.searchFilter,Page:this.props.searchFilter.Page-1})
-          this.props.SearchByFilter(this.props.searchFilter);   
+          this.props.dispatchAction({
+            type:NotificationActionTypes.SUCCESS,
+            message: result.message ?? "Delete customer successful",
+            title: "Delete Customer"
+          })
+          await this.props.SearchByFilter(this.props.searchFilter);
+          if (this.props.customerData.customers.length<=0 && this.props.searchFilter.Page>1)
+          {
+            await this.props.UpdateSearchFilter({...this.props.searchFilter,Page:this.props.searchFilter.Page-1})
+            this.props.SearchByFilter(this.props.searchFilter);   
+          }
+          this.setState({ModalConfirmDelete:{...this.state.ModalConfirmDelete,visible:false}});
         }
-        this.setState({ModalConfirmDelete:{...this.state.ModalConfirmDelete,visible:false}});
+        else
+        {
+          this.props.dispatchAction({
+            type:NotificationActionTypes.ERROR,
+            message: result.message,
+            title: "Delete Customer"
+          })
+        }
+        
   };
 
   handleCancelModalDelete = () => {
@@ -387,7 +412,8 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<{}, {}, AnyAction>): {} => {
       Update,
       Delete,
       SearchByFilter,
-      UpdateSearchFilter
+      UpdateSearchFilter,
+      dispatchAction: (data: any) => ({ ...data })
   }, dispatch)
 }
 

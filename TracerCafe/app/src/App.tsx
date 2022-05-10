@@ -1,13 +1,58 @@
-import React from 'react';
-import logo from './logo.svg';
+import React from "react";
+import { IAppState } from './store/Store';
 import './App.css';
 import ManageCustomer from './view/customer';
-import { Layout, Menu, Breadcrumb } from 'antd';
+import { Layout, Menu, Breadcrumb,notification } from 'antd';
 import { UserOutlined, LaptopOutlined, NotificationOutlined } from '@ant-design/icons';
-console.log(process.env)
+import { AnyAction, bindActionCreators } from 'redux';
+import { ThunkDispatch } from 'redux-thunk';
+import {  withTranslation } from 'react-i18next';
+import { connect } from 'react-redux';
+import {INotificationState} from './modules/Notification/notification.reducer'
+import {NOTIFICATION_TIMEOUT} from './constanst'
+import { NotificationActionTypes } from './modules/Notification/notification.type';
+
 const { SubMenu } = Menu;
 const { Header, Content, Sider } = Layout;
-function App() {
+
+
+
+interface IProps  {
+  notificationState?: INotificationState;
+}
+
+export class App extends React.Component<IProps, any>  {
+
+  UNSAFE_componentWillReceiveProps(nextProps: IProps): void {
+    const type = nextProps.notificationState.type;
+    const config = {
+      message: nextProps.notificationState.title,
+      description:
+        nextProps.notificationState.description,
+      duration: NOTIFICATION_TIMEOUT
+    }
+    debugger
+    switch (type) {
+      case NotificationActionTypes.ERROR:
+        //config.message = NotificationActionTypes.ERROR;
+        notification.error(config)
+        break;
+      case NotificationActionTypes.SUCCESS:
+        //config.message = NotificationActionTypes.SUCCESS;
+        notification.success(config)
+        break;
+      case NotificationActionTypes.WARNING:
+        //config.message = NotificationActionTypes.WARNING;
+        notification.warning(config)
+        break;
+      default:
+        break;
+    }
+
+
+  }
+
+  render():JSX.Element{
   return (
     <Layout>
     <Header className="header">
@@ -69,5 +114,18 @@ function App() {
 
   );
 }
+}
 
-export default App;
+
+const mapStateToProps = (store: IAppState): {} => {
+  return {
+    notificationState: store.notificationState
+  };
+};
+
+const mapDispatchToProps = (dispatch: ThunkDispatch<{}, {}, AnyAction>): {} => {
+  return bindActionCreators({
+  }, dispatch)
+};
+
+export default withTranslation()(connect(mapStateToProps, mapDispatchToProps)(App));

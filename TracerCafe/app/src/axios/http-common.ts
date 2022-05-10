@@ -4,7 +4,7 @@ import { setupInterceptorsTo } from './Interceptors'
 require('dotenv').config(); 
 const instance = axios.create({
 	baseURL: process.env.REACT_APP_API_URL,
-	timeout: 15000,
+	timeout: 100000,
 });
 
 const responseBody = (response: AxiosResponse) => response.data;

@@ -11,15 +11,18 @@
  import thunk from 'redux-thunk';
  // Import reducers and state type
  import { ICustomerState, CustomerReducer } from '../modules/Customer/customer.reducer';
- 
+ import { INotificationState, notificationReducer } from '../modules/Notification/notification.reducer';
+
  // Create an interface for the application state
  export interface IAppState {
    customerState: ICustomerState
+   notificationState: INotificationState
  }
  
  // Create the root reducer
  const rootReducer = combineReducers<IAppState>({
-    customerState: CustomerReducer
+    customerState: CustomerReducer,
+    notificationState: notificationReducer
  });
  
  // Create a configure store function of type `IAppState`

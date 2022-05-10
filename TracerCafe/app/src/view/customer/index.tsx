@@ -13,12 +13,15 @@ import { Row, Col, Button } from 'antd'
 import { IFieldForm, AddItem } from '../utilities/AddItem'
 import { PlusCircleOutlined } from '@ant-design/icons';
 import { FormInstance } from 'antd/lib/form';
+import { ErrorObject } from "../../constanst";
+import { NotificationActionTypes } from "../../modules/Notification/notification.type";
 
 export interface ICustomersProps extends WithTranslation {
     customerData?: ICustomerData;
     SearchByFilter?: Function;
     searchFilter?: ISearchCustomerByFilter
     CreateCustomer?:Function
+    dispatchAction?:Function
 }
 
 class ManageCustomer extends React.Component<ICustomersProps, any>
@@ -49,9 +52,33 @@ class ManageCustomer extends React.Component<ICustomersProps, any>
 
     handleOkAddModal =async () => {
         const newCustomer:ICustomer =this.refAddItem.current.getFieldsValue()
-        await this.props.CreateCustomer(newCustomer);
-        await this.props.SearchByFilter(this.props.searchFilter);
-        this.setState({ ModalAddCustomer: { ...this.state.ModalAddCustomer, isModalVisible: false } })
+        var result = await this.props.CreateCustomer(newCustomer);
+
+        this.props.dispatchAction({
+            type:result.code==ErrorObject.SUCCESS ? NotificationActionTypes.SUCCESS:NotificationActionTypes.ERROR,
+            message: result.message,
+            title: "Create Customer"
+          })
+          if (result.code==ErrorObject.SUCCESS)
+          {
+            await this.props.SearchByFilter(this.props.searchFilter);
+            const emptyValue:ICustomer = {
+                firstName:'',
+                address1:'',
+                address2:'',
+                address3:'',
+                address4:'',
+                id:'',
+                title:'',
+                age:0,
+                telephone:'',
+                postCode:'',
+                surname:''
+            };
+            this.refAddItem.current.setFieldsValue(emptyValue);
+
+          }       
+        this.setState({ ModalAddCustomer: { ...this.state.ModalAddCustomer, isModalVisible: !(result.code==ErrorObject.SUCCESS) } })
     }
     render(): JSX.Element {
         const IFieldFormAddCustomer: IFieldForm[] =
@@ -209,7 +236,8 @@ const mapStateToProps = ({ customerState }: IAppState): {} => {
 const mapDispatchToProps = (dispatch: ThunkDispatch<{}, {}, AnyAction>): {} => {
     return bindActionCreators({
         SearchByFilter,
-        CreateCustomer
+        CreateCustomer,
+        dispatchAction: (data: any) => ({ ...data })
     }, dispatch)
 }
 export default withTranslation()(connect(mapStateToProps, mapDispatchToProps)(ManageCustomer))

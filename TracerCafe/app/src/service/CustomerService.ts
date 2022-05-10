@@ -11,7 +11,7 @@ export default class CustomerService extends BaseService {
         return this.post(`${this.apiUrl}/SearchByFilter`,{...data});
     }
 
-    public UpdateCustomer(data:ICustomer):Promise<AxiosResponse>
+    public UpdateCustomer(data:ICustomer):Promise<any>
     {
         return this.put(`${this.apiUrl}`,{...data});
     }

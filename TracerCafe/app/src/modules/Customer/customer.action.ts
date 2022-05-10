@@ -4,6 +4,7 @@ import { ThunkAction } from 'redux-thunk';
 import  {CustomerActionTypes} from './customer.type'
 import {ICustomerData,ICustomer} from '../../model/Customer/ManageCustomer'
 import {ISearchCustomerByFilter} from '../../model/Customer/SearchCustomerByFilter'
+import {ErrorObject} from '../../constanst/index'
 
 export interface ICustomerAction {
     type: CustomerActionTypes.GET_ALL_CUSTOMER;
@@ -34,13 +35,13 @@ export type CustomerActions = ICustomerAction | IUpdateCustomerAction | IDeleteC
 export const SearchByFilter:ActionCreator<ThunkAction<Promise<void>, null, null, null>>= (searchCustomerByFilter:ISearchCustomerByFilter) =>
 {
     return async (dispatch :Dispatch):Promise<void>=>{
-        var customerService = new CustomerService();
-        const customer =await customerService.SearchByFilter(searchCustomerByFilter);
-        if (customer)
+        var customerService = new CustomerService(dispatch);
+        const result =await customerService.SearchByFilter(searchCustomerByFilter);
+        if (result.code===ErrorObject.SUCCESS)
         {
             dispatch({
                 type:CustomerActionTypes.GET_ALL_CUSTOMER,
-                customerData: customer
+                customerData: result.data
             })
         }
     }
@@ -50,26 +51,25 @@ export const Update:ActionCreator<ThunkAction<Promise<void>, null, null, null>>=
 {
     
     return async (dispatch :Dispatch):Promise<void>=>{
-        debugger
-        var customerService = new CustomerService();
-        const updateCustomer =await customerService.UpdateCustomer(customer);
-        if (updateCustomer)
+        var customerService = new CustomerService(dispatch);
+        const result =await customerService.UpdateCustomer(customer);
+        if (result.code==ErrorObject.SUCCESS)
         {
             dispatch({
                 type:CustomerActionTypes.UPDATE_CUSTOMER,
-                updateCustomer: updateCustomer,
+                updateCustomer: result.data,
             })
         }
+        return result;
     }
 }
 
 export const Delete:ActionCreator<ThunkAction<Promise<void>, null, null, null>>= (id:string) =>
 {
     
-    return async (dispatch :Dispatch):Promise<void>=>{
-        
-        var customerService = new CustomerService();
-        await customerService.DeleteCustomer(id);       
+    return async (dispatch :Dispatch):Promise<void>=>{  
+        var customerService = new CustomerService(dispatch);
+        return await customerService.DeleteCustomer(id);       
     }
 }
 
@@ -89,12 +89,16 @@ export const CreateCustomer:ActionCreator<ThunkAction<Promise<void>, null, null,
 {
     
     return async (dispatch :Dispatch):Promise<void>=>{
-        var customerService = new CustomerService();
-        await customerService.CreateCustomer(customer);
-        dispatch({
-            type:CustomerActionTypes.CREATE_CUSTOMER
-
-        })       
+        var customerService = new CustomerService(dispatch);
+        var result = await customerService.CreateCustomer(customer);
+        if (result.code === ErrorObject.SUCCESS)
+        {
+            dispatch({
+                type:CustomerActionTypes.CREATE_CUSTOMER 
+            })  
+        }
+        return result;
+             
     }
 }
 
